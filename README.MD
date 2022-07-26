@@ -88,5 +88,5 @@ recommends for testing.
 
 
 #Command to compile locally:
-clang credit.c -o credit -lcs50
+clang credit.c -o credit -lcs50 -lm
 
