@@ -9,7 +9,7 @@
 #define NONE -1
 #define cardType int
 
-long getNumberFromUser();
+long getInputFromUser();
 int getDigit(long number, int digit);
 cardType getCardType(long number);
 int getNumberOfDigits(long number);
