@@ -9,11 +9,10 @@
 #define INVALID -1
 #define cardType int
 
-bool isNumberValid(long number);
 long getNumberFromUser();
 int getDigit(long number, int digit);
 cardType getCardType(long number);
-int getNumberOfDigits(cardType type);
+int getNumberOfDigits(long number);
 string getCardDescription(cardType type);
 bool isCardValid(long number);
 
@@ -35,14 +34,8 @@ long getNumberFromUser()
     long number;
     do{
         number = get_long("Card number: ");
-    }while(!isNumberValid(number));
+    } while( number <= 0 );
     return number;
-}
-
-bool isNumberValid(long number)
-{
-    // Greater than zero and at least the length of the smaller VISA pattern
-    return number > 0;
 }
 
 int getDigit(long number, int digit)
@@ -68,7 +61,8 @@ string getCardDescription(cardType type){
     return "VISA";    
 }
 
-int getNumberOfDigits(cardType type){
+int getNumberOfDigits(long number){
+    cardType type = getCardType(number);
     switch(type){
         case AMEX:
             return 15;
@@ -83,9 +77,12 @@ int getNumberOfDigits(cardType type){
 
 cardType getCardType(long number){
     // It can be MASTERCARD or VISA_16
-    if(number >= pow(10,15)){
-        int first_digit = getDigit(number,16);
-        int second_digit = getDigit(number,15);
+    int first_digit = getDigit(number,16);
+    int second_digit = getDigit(number,15);
+    int third_digit = getDigit(number,14);
+    int fourth_digit = getDigit(number,13);
+
+    if( first_digit > 0 ){
         if (first_digit==5 && second_digit>=1 && second_digit<=5){
             return MASTERCARD;
         }
@@ -94,48 +91,43 @@ cardType getCardType(long number){
         }
     }
     // It can be AMEX
-    else if (number >= pow(10,14))
+    else if ( second_digit > 0 )
     {
-        int first_digit = getDigit(number,15);
-        int second_digit = getDigit(number,14);
-        if (first_digit==3 && ( second_digit == 4 || second_digit == 7 )){
+        if (second_digit==3 && ( third_digit == 4 || third_digit == 7 )){
             return AMEX;
         }
     // It can be VISA_13
-    }else if (number >= pow(10,12)){
-        int first_digit = getDigit(number,13);
-        if (first_digit==4){
-            return VISA_13;
-        }
+    }else if ( third_digit == 0 && fourth_digit == 4)
+    {
+        return VISA_13;
     }
     return INVALID;
 }
 
 bool isCardValid(long number){
-    cardType type = getCardType(number);
+    int numberOfDigits = getNumberOfDigits(number);
     
-    int numberOfDigits = getNumberOfDigits(type);
-    if (numberOfDigits < 0){
+    if (numberOfDigits < 0)
+    {
         return false;
     }
-
-    int sumOfDigitsMultipliedBy2 = 0;
-    int sumOfOtherDigits = 0;
-
+    int totalSum = 0;
+    
     for (int digit=1; digit <= numberOfDigits; digit++){
         int digitValue = getDigit(number,digit);
+        //If the digit represents an odd position
         if (digit % 2 != 0){
-            sumOfOtherDigits += digitValue;
+            totalSum += digitValue;
         }else{
             int product = digitValue * 2;
             int sum = product;
             if (sum >= 10){
                 sum = getDigit(product,1) + getDigit(product,2);
             }
-            sumOfDigitsMultipliedBy2 += sum;
+            totalSum += sum;
         }
     }
-    int totalSum = (sumOfOtherDigits + sumOfDigitsMultipliedBy2);
+    
     return getDigit( totalSum, 1 ) == 0;
 
 }
