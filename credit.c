@@ -6,7 +6,7 @@
 #define MASTERCARD 1
 #define VISA_16 2
 #define VISA_13 3
-#define INVALID -1
+#define NONE -1
 #define cardType int
 
 long getNumberFromUser();
@@ -14,22 +14,23 @@ int getDigit(long number, int digit);
 cardType getCardType(long number);
 int getNumberOfDigits(long number);
 string getCardDescription(cardType type);
-bool isCardValid(long number);
+bool isCardNumberValid(long number);
 
 int main(void)
 {
-    long number = getNumberFromUser();
-    cardType type = getCardType(number);
-    if (isCardValid(number))
+    long cardNumber = getInputFromUser();
+    if (isCardNumberValid(cardNumber))
     {
+        cardType type = getCardType(cardNumber);
         printf("%s\n",getCardDescription(type));    
-    }else
+    }
+    else
     {
         printf("INVALID\n");    
     }
 }
 
-long getNumberFromUser()
+long getInputFromUser()
 {
     long number;
     do{
@@ -96,15 +97,17 @@ cardType getCardType(long number){
         if (second_digit==3 && ( third_digit == 4 || third_digit == 7 )){
             return AMEX;
         }
+    
+    }
     // It can be VISA_13
-    }else if ( third_digit == 0 && fourth_digit == 4)
+    else if ( third_digit == 0 && fourth_digit == 4)
     {
         return VISA_13;
     }
-    return INVALID;
+    return NONE;
 }
 
-bool isCardValid(long number){
+bool isCardNumberValid(long number){
     int numberOfDigits = getNumberOfDigits(number);
     
     if (numberOfDigits < 0)
@@ -118,7 +121,9 @@ bool isCardValid(long number){
         //If the digit represents an odd position
         if (digit % 2 != 0){
             totalSum += digitValue;
-        }else{
+        }
+        else
+        {
             int product = digitValue * 2;
             int sum = product;
             if (sum >= 10){
@@ -127,7 +132,5 @@ bool isCardValid(long number){
             totalSum += sum;
         }
     }
-    
     return getDigit( totalSum, 1 ) == 0;
-
 }
